@@ -27,7 +27,8 @@ wifi:
   password: !secret wifi_passphrase
 
 ota:
-  password: !secret ota_password
+  - platform: esphome
+    password: !secret ota_password
 
 uart:
   baud_rate: 115200
