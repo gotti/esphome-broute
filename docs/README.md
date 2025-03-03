@@ -21,7 +21,7 @@ esphome:
     build_unflags:
     - -std=gnu++11
 external_components:
-- source: '../esphome/esphome/components2'
+- source: github://homy-newfs8/esphome-broute@v0.1.1
   components: [ b_route ]
 
 esp32:
