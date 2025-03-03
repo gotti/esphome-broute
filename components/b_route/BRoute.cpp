@@ -304,13 +304,6 @@ BRoute::get_event(event_params_t& params) {
 
 void
 BRoute::loop() {
-	if (reboot_timeout && is_measurement_requesting()) {
-		if (auto elapsed = esphome::millis() - reboot_timer; elapsed > reboot_timeout) {
-			ESP_LOGE(TAG, u8"計測データを %u 秒間受信していません。再起動します", elapsed / 1000);
-			set_state(state_t::restarting, 0);
-			return;
-		}
-	}
 	event_params_t params{};
 	auto ev = get_event(params);
 	switch (state) {
@@ -319,7 +312,7 @@ BRoute::loop() {
 				mark_failed();
 				App.safe_reboot();
 			}
-			break;
+			return;  // DO NOT DO ANYTHING
 		case state_t::init:
 			bp.send_sk("SKVER");
 			set_state(state_t::wait_ver, 1'000);
@@ -479,6 +472,13 @@ BRoute::loop() {
 		default:
 			ESP_LOGD(TAG, "%d: Unhandled state", static_cast<int>(state));
 			break;
+	}
+	if (reboot_timeout && is_measurement_requesting()) {
+		if (auto elapsed = esphome::millis() - reboot_timer; elapsed > reboot_timeout) {
+			ESP_LOGE(TAG, u8"計測データを %u 秒間受信していません。再起動します", elapsed / 1000);
+			set_state(state_t::restarting, 0);
+			return;
+		}
 	}
 	if (state_timeout && esphome::millis() - state_started > state_timeout) {
 		ESP_LOGW(TAG, "%s: State timeout, re-run from init", state_name(state));
