@@ -133,8 +133,8 @@ class BRoute : public Component, public uart::UARTDevice, public libbp35::Serial
 			ESP_LOGE(TAG, "Get property encode overflow");
 			return false;
 		}
-		bp.send_sk_with_data("SKSENDTO", out_buffer.data(), len, arg::mode(1), arg::flag(false), arg::str(v6_address), arg::num16(echo::UDP_PORT),
-		                     arg::mode(2), arg::num16(len));
+		bp.send_sk_with_data("SKSENDTO", out_buffer.data(), len, arg::mode(1), arg::str(v6_address), arg::num16(echo::UDP_PORT),
+		                     arg::mode(2), arg::flag(false), arg::num16(len));
 		property_requested = millis();
 		++miss_count;
 		return true;
