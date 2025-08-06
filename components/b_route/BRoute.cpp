@@ -314,6 +314,8 @@ BRoute::loop() {
 			}
 			return;  // DO NOT DO ANYTHING
 		case state_t::init:
+			bp.send_sk("SKTERM");
+			bp.send_sk("SKRESET");
 			bp.send_sk("SKVER");
 			set_state(state_t::wait_ver, 1'000);
 			break;
@@ -408,6 +410,8 @@ BRoute::loop() {
 				} else if (line.rfind(SCAN_KEY_CHANNEL, 0) == 0) {
 					channel = line.substr(SCAN_KEY_CHANNEL.length());
 				}
+			} else {
+				ESP_LOGD(TAG, "Unknown event %s", params.line.c_str());
 			}
 			break;
 		case state_t::joining:
