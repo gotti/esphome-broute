@@ -320,14 +320,11 @@ BRoute::loop() {
 		case state_t::wait_ver:
 			if (ev == event_t::ver) {
 				ESP_LOGD(TAG, "VER=%s", params.remain.data());
-			} else if (ev == event_t::ok) {
-				// disable echo back
-				bp.send_sk("SKSREG", arg::reg(0xfe), arg::mode(0));
-				set_state(state_t::setting_values, 1'000);
-				setting_value = initial_value_t::echo;
-			} else {
-				ESP_LOGE(TAG, "Unexpected event %s in wait_ver", libbp35::event_str(ev));
 			}
+			// disable echo back
+			bp.send_sk("SKSREG", arg::reg(0xfe), arg::mode(0));
+			set_state(state_t::setting_values, 1'000);
+			setting_value = initial_value_t::echo;
 			break;
 		case state_t::setting_values:
 			if (ev == event_t::ok) {
