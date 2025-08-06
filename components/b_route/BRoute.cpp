@@ -406,6 +406,7 @@ BRoute::loop() {
 				}
 				break;
 			} else if (ev == event_t::unknown && params.line[0] == ' ') {
+				ESP_LOGI(TAG, "Scan line: %s", params.line.c_str());
 				auto line = util::trim_sv(params.line);
 				if (line.rfind(SCAN_KEY_ADDR, 0) == 0) {
 					mac = line.substr(SCAN_KEY_ADDR.length());
