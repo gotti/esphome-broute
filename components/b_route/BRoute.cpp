@@ -263,7 +263,7 @@ BRoute::handle_rxudp(std::string_view hexstr) {
 		ESP_LOGD(TAG, "%u: Destination port is not for EchonetLite", rxudp.lport);
 		return;
 	}
-	ESP_LOGV(TAG, "udp data len = %u, datastr = %s", rxudp.data_len, hexstr.data() + rxudp.data_pos);
+	ESP_LOGI(TAG, "udp data len = %u, datastr = %s", rxudp.data_len, hexstr.data() + rxudp.data_pos);
 	size_t len;
 	if (!util::hex2bin(&hexstr[rxudp.data_pos], buffer, len) || len != rxudp.data_len) {
 		ESP_LOGW(TAG, "%s: Failed to decode udp data, at %x", &hexstr[rxudp.data_pos], rxudp.data_pos);
@@ -275,13 +275,15 @@ BRoute::handle_rxudp(std::string_view hexstr) {
 		return;
 	}
 	if (pkt.ehd1 != echo::EHD1 || pkt.ehd2 != echo::EHD2_Format1) {
+		ESP_LOGW(TAG, "%s: Invalid EHD1/EHD2 %02x/%02x", &hexstr[rxudp.data_pos], pkt.ehd1, pkt.ehd2);
 		return;
 	}
 	// handle low power smart meter
 	if (pkt.seoj.X1 != 0x02 || pkt.seoj.X2 != 0x88) {
+		ESP_LOGW(TAG, "%s: Invalid SEoj %02x%02x%02x", &hexstr[rxudp.data_pos], pkt.seoj.X1, pkt.seoj.X2, pkt.seoj.X3);
 		return;
 	}
-	ESP_LOGV(TAG, "Echonet ehd=%02x,%02x deoj=%02x%02x%02x, esv=%02x, npc=%u, epc[0]=%02x", pkt.ehd1, pkt.ehd2, pkt.deoj.X1,
+	ESP_LOGI(TAG, "Echonet ehd=%02x,%02x deoj=%02x%02x%02x, esv=%02x, npc=%u, epc[0]=%02x", pkt.ehd1, pkt.ehd2, pkt.deoj.X1,
 	         pkt.deoj.X2, pkt.deoj.X3, pkt.esv, pkt.opc, pkt.opc == 0 ? -1 : pkt.properties[0].epc);
 	if (pkt.esv == static_cast<uint8_t>(echo::ESV::Get_Res) || pkt.esv == static_cast<uint8_t>(echo::ESV::INF) ||
 	    pkt.esv == static_cast<uint8_t>(echo::ESV::Get_SNA)) {
