@@ -139,7 +139,6 @@ BP35::parse_rxudp(std::string_view remain, rxudp_t& out) {
 			continue;
 		}
 
-		ESP_LOGE(TAG, "Failed to parse data length in RXUDP: %s", remain.data());
 		return false;
 	}
 	out.data_pos = std::distance(std::cbegin(remain), pos);
