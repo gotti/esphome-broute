@@ -105,6 +105,7 @@ bool
 BP35::parse_rxudp(std::string_view remain, rxudp_t& out) {
 	auto pos = std::cbegin(remain);
 	auto end = std::cend(remain);
+
 	if (!arg::get_ipv6(pos, end, out.sender) || !arg::skip_sep(pos, end)) {
 		ESP_LOGE(TAG, "Failed to parse sender address in RXUDP: %s", remain.data());
 		return false;
@@ -129,9 +130,25 @@ BP35::parse_rxudp(std::string_view remain, rxudp_t& out) {
 		ESP_LOGE(TAG, "Failed to parse secured flag in RXUDP: %s", remain.data());
 		return false;
 	}
-	if (!arg::get_num16(pos, end, out.data_len) || !arg::skip_sep(pos, end)) {
-		// print pos as a string for debug
-		ESP_LOGE(TAG, "pos: %s", std::string(pos, end).c_str());
+	// Data length follows.  However, some BP35 firmware versions can insert one or more
+	// single-digit flag fields (e.g. "0" or "1") between the secured flag and the 4-digit
+	// data length.  Accept and ignore any such extra flag tokens.
+
+	while (true) {
+		auto save = pos;
+		if (arg::get_num16(pos, end, out.data_len) && arg::skip_sep(pos, end)) {
+			// Successfully read 16-bit length (4 hex digits) followed by a separator.
+			break;
+		}
+
+		// Restore and try to skip a 1-digit flag token.
+		pos = save;
+		bool dummy_flag;
+		if (arg::get_flag(pos, end, dummy_flag) && arg::skip_sep(pos, end)) {
+			// skipped one flag, continue loop to attempt reading length again
+			continue;
+		}
+
 		ESP_LOGE(TAG, "Failed to parse data length in RXUDP: %s", remain.data());
 		return false;
 	}
