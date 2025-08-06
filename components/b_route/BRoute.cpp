@@ -388,9 +388,12 @@ BRoute::loop() {
 			}
 			break;
 		case state_t::scanning:
+			if (ev == event_t::event) {
+				ESP_LOGI(TAG, "Scan event %02x", params.event.num);
+			}
 			if (ev == event_t::ok) {
 				ESP_LOGI(TAG, "Scanning...");
-			} else if (ev == event_t::event && params.event.num == 0x22) {
+			} else if (ev == event_t::event && params.event.num == 0x20) {
 				if (test_nw_info()) {
 					ESP_LOGI(TAG, "Scan done");
 					rescan_timer = esphome::millis();
