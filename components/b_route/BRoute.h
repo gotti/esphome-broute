@@ -3,7 +3,6 @@
 #include <esphome/components/uart/uart.h>
 #include <esphome/core/component.h>
 #include <cmath>
-#include <string>
 #include "bp35cmd.h"
 #include "echonet_lite.h"
 #include "libbp35.h"
@@ -115,7 +114,6 @@ class BRoute : public Component, public uart::UARTDevice, public libbp35::Serial
 		using namespace libbp35::cmd;
 		namespace echo = echonet_lite;
 		if (state != state_t::running) {
-			ESP_LOGW(TAG, "Request property in %s state", state_name(state));
 			return false;
 		}
 		if (rejoin_miss_count && miss_count >= rejoin_miss_count) {
@@ -125,7 +123,6 @@ class BRoute : public Component, public uart::UARTDevice, public libbp35::Serial
 			return false;
 		}
 		if (property_requested && millis() - property_requested < REQUEST_PROPERTY_INTERVAL) {
-			ESP_LOGD(TAG, "Property already requested, skip");
 			return false;
 		}
 		size_t len = echo::Codec::encode_property_get(out_buffer, EOJ_CONTROLLER, EOJ_LOWV_SMART_METER, props);

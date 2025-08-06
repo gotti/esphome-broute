@@ -263,10 +263,10 @@ BRoute::handle_rxudp(std::string_view hexstr) {
 		ESP_LOGD(TAG, "%u: Destination port is not for EchonetLite", rxudp.lport);
 		return;
 	}
-	ESP_LOGI(TAG, "udp data len = %u, datastr = %s", rxudp.data_len, hexstr.data() + rxudp.data_pos);
+	ESP_LOGV(TAG, "udp data len = %u, datastr = %s", rxudp.data_len, hexstr.data() + rxudp.data_pos);
 	size_t len;
 	if (!util::hex2bin(&hexstr[rxudp.data_pos], buffer, len) || len != rxudp.data_len) {
-		ESP_LOGW(TAG, "%s: Failed to decode udp data, at %x", &hexstr[rxudp.data_pos], rxudp.data_pos);
+		ESP_LOGW(TAG, "%s: Failed to decode udp data", &hexstr[rxudp.data_pos]);
 		return;
 	}
 	echo::Packet pkt;
@@ -275,15 +275,13 @@ BRoute::handle_rxudp(std::string_view hexstr) {
 		return;
 	}
 	if (pkt.ehd1 != echo::EHD1 || pkt.ehd2 != echo::EHD2_Format1) {
-		ESP_LOGW(TAG, "%s: Invalid EHD1/EHD2 %02x/%02x", &hexstr[rxudp.data_pos], pkt.ehd1, pkt.ehd2);
 		return;
 	}
 	// handle low power smart meter
 	if (pkt.seoj.X1 != 0x02 || pkt.seoj.X2 != 0x88) {
-		ESP_LOGW(TAG, "%s: Invalid SEoj %02x%02x%02x", &hexstr[rxudp.data_pos], pkt.seoj.X1, pkt.seoj.X2, pkt.seoj.X3);
 		return;
 	}
-	ESP_LOGI(TAG, "Echonet ehd=%02x,%02x deoj=%02x%02x%02x, esv=%02x, npc=%u, epc[0]=%02x", pkt.ehd1, pkt.ehd2, pkt.deoj.X1,
+	ESP_LOGV(TAG, "Echonet ehd=%02x,%02x deoj=%02x%02x%02x, esv=%02x, npc=%u, epc[0]=%02x", pkt.ehd1, pkt.ehd2, pkt.deoj.X1,
 	         pkt.deoj.X2, pkt.deoj.X3, pkt.esv, pkt.opc, pkt.opc == 0 ? -1 : pkt.properties[0].epc);
 	if (pkt.esv == static_cast<uint8_t>(echo::ESV::Get_Res) || pkt.esv == static_cast<uint8_t>(echo::ESV::INF) ||
 	    pkt.esv == static_cast<uint8_t>(echo::ESV::Get_SNA)) {
@@ -325,15 +323,12 @@ BRoute::loop() {
 			if (ev == event_t::ver) {
 				ESP_LOGD(TAG, "VER=%s", params.remain.data());
 				// disable echo back
-				ESP_LOGD(TAG, "Disable echo back");
 				bp.send_sk("SKSREG", arg::reg(0xfe), arg::mode(0));
 				set_state(state_t::setting_values, 1'000);
 				setting_value = initial_value_t::echo;
-				ESP_LOGD(TAG, "Set initial value to echo");
 			}
 			break;
 		case state_t::setting_values:
-			ESP_LOGD(TAG, "Setting values, current value: %d", static_cast<int>(setting_value));
 			if (ev == event_t::ok) {
 				switch (setting_value) {
 					case initial_value_t::echo:
@@ -390,13 +385,9 @@ BRoute::loop() {
 			}
 			break;
 		case state_t::scanning:
-			if (ev == event_t::event) {
-				ESP_LOGI(TAG, "Scan event %02x, param: %s", params.event.num, params.remain.data());
-			}
 			if (ev == event_t::ok) {
 				ESP_LOGI(TAG, "Scanning...");
 			} else if (ev == event_t::event && params.event.num == 0x22) {
-				ESP_LOGI(TAG, "Scan done, received %s", params.remain.data());
 				if (test_nw_info()) {
 					ESP_LOGI(TAG, "Scan done");
 					rescan_timer = esphome::millis();
@@ -408,7 +399,6 @@ BRoute::loop() {
 				}
 				break;
 			} else if (ev == event_t::unknown && params.line[0] == ' ') {
-				ESP_LOGI(TAG, "Scan line: %s", params.line.c_str());
 				auto line = util::trim_sv(params.line);
 				if (line.rfind(SCAN_KEY_ADDR, 0) == 0) {
 					mac = line.substr(SCAN_KEY_ADDR.length());
