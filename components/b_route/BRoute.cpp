@@ -325,6 +325,8 @@ BRoute::loop() {
 				bp.send_sk("SKSREG", arg::reg(0xfe), arg::mode(0));
 				set_state(state_t::setting_values, 1'000);
 				setting_value = initial_value_t::echo;
+			} else {
+				ESP_LOGE(TAG, "Unexpected event %s in wait_ver", libbp35::event_str(ev));
 			}
 			break;
 		case state_t::setting_values:
