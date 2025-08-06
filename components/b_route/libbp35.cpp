@@ -129,9 +129,19 @@ BP35::parse_rxudp(std::string_view remain, rxudp_t& out) {
 		ESP_LOGE(TAG, "Failed to parse secured flag in RXUDP: %s", remain.data());
 		return false;
 	}
+	// Data length follows, however some firmware versions insert an extra 1-digit field
+	// (e.g. "0") between the secured flag and the length.  Accept and ignore it.
 	if (!arg::get_num16(pos, end, out.data_len) || !arg::skip_sep(pos, end)) {
-		ESP_LOGE(TAG, "Failed to parse data length in RXUDP: %s", remain.data());
-		return false;
+		// Retry parsing by skipping one optional flag field (single hex digit)
+		auto retry_pos = pos;  // start of the token we just failed to parse
+		bool dummy_flag;
+		if (arg::get_flag(retry_pos, end, dummy_flag) && arg::skip_sep(retry_pos, end) &&
+			arg::get_num16(retry_pos, end, out.data_len) && arg::skip_sep(retry_pos, end)) {
+			pos = retry_pos;  // advance past the optional token and length
+		} else {
+			ESP_LOGE(TAG, "Failed to parse data length in RXUDP: %s", remain.data());
+			return false;
+		}
 	}
 	out.data_pos = std::distance(std::cbegin(remain), pos);
 
