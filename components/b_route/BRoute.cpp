@@ -321,12 +321,15 @@ BRoute::loop() {
 			if (ev == event_t::ver) {
 				ESP_LOGD(TAG, "VER=%s", params.remain.data());
 				// disable echo back
+				ESP_LOGD(TAG, "Disable echo back");
 				bp.send_sk("SKSREG", arg::reg(0xfe), arg::mode(0));
 				set_state(state_t::setting_values, 1'000);
 				setting_value = initial_value_t::echo;
+				ESP_LOGD(TAG, "Set initial value to echo");
 				break;
 			}
 		case state_t::setting_values:
+			ESP_LOGD(TAG, "Setting values, current value: %d", static_cast<int>(setting_value));
 			if (ev == event_t::ok) {
 				switch (setting_value) {
 					case initial_value_t::echo:
