@@ -247,7 +247,7 @@ BRoute::start_scan() {
 	panid.clear();
 	channel.clear();
 	bp.send_sk("SKSCAN 2 FFFFFFFF 6 0");
-	set_state(state_t::scanning, 20'000);
+	set_state(state_t::scanning, 40'000);
 }
 
 void
