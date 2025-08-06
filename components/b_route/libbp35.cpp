@@ -3,6 +3,8 @@
 #include <esphome/core/hal.h>
 #include "bp35cmd.h"
 
+static constexpr const char* TAG = "b_route";
+
 using namespace libbp35::cmd;
 namespace libbp35 {
 
