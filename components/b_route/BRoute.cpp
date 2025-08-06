@@ -335,7 +335,7 @@ BRoute::loop() {
 					case initial_value_t::echo:
 						// test binary mode
 						bp.send_prod("ROPT");
-						setting_value = initial_value_t::ropt;
+						setting_value = initial_value_t::wopt;
 						break;
 					case initial_value_t::ropt:
 						ESP_LOGD(TAG, "ropt=%s", params.remain.data());
