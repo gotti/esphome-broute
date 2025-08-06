@@ -114,6 +114,7 @@ class BRoute : public Component, public uart::UARTDevice, public libbp35::Serial
 		using namespace libbp35::cmd;
 		namespace echo = echonet_lite;
 		if (state != state_t::running) {
+			ESP_LOGW(TAG, "Request property in %s state", state_name(state));
 			return false;
 		}
 		if (rejoin_miss_count && miss_count >= rejoin_miss_count) {
@@ -123,6 +124,7 @@ class BRoute : public Component, public uart::UARTDevice, public libbp35::Serial
 			return false;
 		}
 		if (property_requested && millis() - property_requested < REQUEST_PROPERTY_INTERVAL) {
+			ESP_LOGD(TAG, "Property already requested, skip");
 			return false;
 		}
 		size_t len = echo::Codec::encode_property_get(out_buffer, EOJ_CONTROLLER, EOJ_LOWV_SMART_METER, props);
@@ -130,7 +132,7 @@ class BRoute : public Component, public uart::UARTDevice, public libbp35::Serial
 			ESP_LOGE(TAG, "Get property encode overflow");
 			return false;
 		}
-		bp.send_sk_with_data("SKSENDTO", out_buffer.data(), len, arg::mode(1), arg::num8(0), arg::str(v6_address), arg::num16(echo::UDP_PORT),
+		bp.send_sk_with_data("SKSENDTO", out_buffer.data(), len, arg::mode(1), arg::hexchar(0), arg::str(v6_address), arg::num16(echo::UDP_PORT),
 		                     arg::mode(2), arg::num16(len));
 		property_requested = millis();
 		++miss_count;
