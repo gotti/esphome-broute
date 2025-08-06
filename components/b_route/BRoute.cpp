@@ -246,7 +246,7 @@ BRoute::start_scan() {
 	mac.clear();
 	panid.clear();
 	channel.clear();
-	bp.send_sk("SKSCAN 2 FFFFFFFF 6");
+	bp.send_sk("SKSCAN 2 FFFFFFFF 6 0");
 	set_state(state_t::scanning, 20'000);
 }
 
@@ -266,7 +266,7 @@ BRoute::handle_rxudp(std::string_view hexstr) {
 	ESP_LOGV(TAG, "udp data len = %u, datastr = %s", rxudp.data_len, hexstr.data() + rxudp.data_pos);
 	size_t len;
 	if (!util::hex2bin(&hexstr[rxudp.data_pos], buffer, len) || len != rxudp.data_len) {
-		ESP_LOGW(TAG, "%s: Failed to decode udp data", &hexstr[rxudp.data_pos]);
+		ESP_LOGW(TAG, "%s: Failed to decode udp data, at %x", &hexstr[rxudp.data_pos], rxudp.data_pos);
 		return;
 	}
 	echo::Packet pkt;
