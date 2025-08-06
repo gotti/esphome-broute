@@ -393,7 +393,8 @@ BRoute::loop() {
 			}
 			if (ev == event_t::ok) {
 				ESP_LOGI(TAG, "Scanning...");
-			} else if (ev == event_t::event && params.event.num == 0x20) {
+			} else if (ev == event_t::event && params.event.num == 0x22) {
+				ESP_LOGI(TAG, "Scan done, received %s", params.remain.data());
 				if (test_nw_info()) {
 					ESP_LOGI(TAG, "Scan done");
 					rescan_timer = esphome::millis();
