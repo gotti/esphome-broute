@@ -393,7 +393,7 @@ BRoute::loop() {
 			}
 			if (ev == event_t::ok) {
 				ESP_LOGI(TAG, "Scanning...");
-			} else if (ev == event_t::event && params.event.num == 0x22) {
+			} else if (ev == event_t::event && params.event.num == 0x20) {
 				ESP_LOGI(TAG, "Scan done, received %s", params.remain.data());
 				if (test_nw_info()) {
 					ESP_LOGI(TAG, "Scan done");
@@ -414,8 +414,6 @@ BRoute::loop() {
 				} else if (line.rfind(SCAN_KEY_CHANNEL, 0) == 0) {
 					channel = line.substr(SCAN_KEY_CHANNEL.length());
 				}
-			} else {
-				ESP_LOGD(TAG, "Unknown event %s", params.line.c_str());
 			}
 			break;
 		case state_t::joining:
