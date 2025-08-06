@@ -326,8 +326,8 @@ BRoute::loop() {
 				set_state(state_t::setting_values, 1'000);
 				setting_value = initial_value_t::echo;
 				ESP_LOGD(TAG, "Set initial value to echo");
-				break;
 			}
+			break;
 		case state_t::setting_values:
 			ESP_LOGD(TAG, "Setting values, current value: %d", static_cast<int>(setting_value));
 			if (ev == event_t::ok) {
