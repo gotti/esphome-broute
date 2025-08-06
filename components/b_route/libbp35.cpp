@@ -103,24 +103,31 @@ BP35::parse_rxudp(std::string_view remain, rxudp_t& out) {
 	auto pos = std::cbegin(remain);
 	auto end = std::cend(remain);
 	if (!arg::get_ipv6(pos, end, out.sender) || !arg::skip_sep(pos, end)) {
+		ESP_LOGE(TAG, "Failed to parse sender address in RXUDP: %s", remain.data());
 		return false;
 	}
 	if (!arg::get_ipv6(pos, end, out.dest) || !arg::skip_sep(pos, end)) {
+		ESP_LOGE(TAG, "Failed to parse destination address in RXUDP: %s", remain.data());
 		return false;
 	}
 	if (!arg::get_num16(pos, end, out.rport) || !arg::skip_sep(pos, end)) {
+		ESP_LOGE(TAG, "Failed to parse remote port in RXUDP: %s", remain.data());
 		return false;
 	}
 	if (!arg::get_num16(pos, end, out.lport) || !arg::skip_sep(pos, end)) {
+		ESP_LOGE(TAG, "Failed to parse local port in RXUDP: %s", remain.data());
 		return false;
 	}
 	if (!arg::get_mac(pos, end, out.sender_lla) || !arg::skip_sep(pos, end)) {
+		ESP_LOGE(TAG, "Failed to parse sender LLA in RXUDP: %s", remain.data());
 		return false;
 	}
 	if (!arg::get_flag(pos, end, out.secured) || !arg::skip_sep(pos, end)) {
+		ESP_LOGE(TAG, "Failed to parse secured flag in RXUDP: %s", remain.data());
 		return false;
 	}
 	if (!arg::get_num16(pos, end, out.data_len) || !arg::skip_sep(pos, end)) {
+		ESP_LOGE(TAG, "Failed to parse data length in RXUDP: %s", remain.data());
 		return false;
 	}
 	out.data_pos = std::distance(std::cbegin(remain), pos);
