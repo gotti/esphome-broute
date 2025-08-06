@@ -1,4 +1,5 @@
 #include "libbp35.h"
+#include <esphome/core/application.h>
 #include <esphome/core/hal.h>
 #include "bp35cmd.h"
 
